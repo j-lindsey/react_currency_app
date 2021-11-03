@@ -1,5 +1,6 @@
 import React from 'react';
 import { checkStatus, json } from './utils';
+import './currencyConverter.css';
 
 class CurrencyConverter extends React.Component {
     constructor(props) {
@@ -33,10 +34,27 @@ class CurrencyConverter extends React.Component {
         }
         const { currencies } = this.state;
         return (
-            <div>
-                {Object.keys(currencies).map(key => 
-                    <h4 value={key}>{key}</h4>
-                )}
+            <div className="currency-main">
+                <div className="currency-input">
+                    <input type="number" placeholder="Amount" />
+                    <div className="select">
+                        <label>From</label>
+                        <select>
+                            {Object.keys(currencies).map(key =>
+                                <option key={key} value={key}>{key} - {currencies[key]}</option>
+                            )}
+                        </select>
+                    </div>
+                    <div className="select">
+                        <label>To</label>
+                        <select>
+                            {Object.keys(currencies).map(key =>
+                                <option key={key} value={key}>{key} - {currencies[key]}</option>
+                            )}
+                        </select>
+                    </div>
+                </div>
+                <button className="convert">Convert</button>
             </div>
         )
     }
