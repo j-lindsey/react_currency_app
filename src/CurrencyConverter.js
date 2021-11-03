@@ -7,8 +7,12 @@ class CurrencyConverter extends React.Component {
         super(props);
         this.state = {
             currencies: {},
-            error: ''
+            error: '',
+            amount: 0,
+            fromCurrency: '',
+            toCurrency: ''
         };
+        this.handleChange = this.handleChange.bind(this);
     }
     componentDidMount() {
         fetch('https://altexchangerateapi.herokuapp.com/currencies')
@@ -21,6 +25,7 @@ class CurrencyConverter extends React.Component {
                 else {
                     console.log(data);
                     this.setState({ currencies: data, error: '' });
+                    this.setState({ fromCurrency: Object.keys(data)[0], toCurrency: Object.keys(data)[0] });
                 }
             })
             .catch(error => {
@@ -28,18 +33,34 @@ class CurrencyConverter extends React.Component {
             })
     }
 
+    handleChange(event) {
+        const { name } = event.target;
+        let value;
+        if(name === "amount"){
+            value = parseFloat(event.target.value);
+        }else{
+            value = event.target.value;
+        }
+        this.setState({ [name]: value })
+        console.log(this.state);
+    }
+
     render() {
         if (!this.state.currencies) {
             return null;
         }
-        const { currencies } = this.state;
+        const { currencies, fromCurrency, toCurrency, amount } = this.state;
+
         return (
             <div className="currency-main">
                 <div className="currency-input">
-                    <input type="number" placeholder="Amount" />
+                    <div className="select">
+                    <label>Amount</label>
+                        <input type="number" placeholder="Amount" value={amount} name="amount" onChange={this.handleChange} />
+                    </div>
                     <div className="select">
                         <label>From</label>
-                        <select>
+                        <select name="fromCurrency" value={fromCurrency} onChange={this.handleChange}>
                             {Object.keys(currencies).map(key =>
                                 <option key={key} value={key}>{key} - {currencies[key]}</option>
                             )}
@@ -47,7 +68,7 @@ class CurrencyConverter extends React.Component {
                     </div>
                     <div className="select">
                         <label>To</label>
-                        <select>
+                        <select name="toCurrency" value={toCurrency} onChange={this.handleChange}>
                             {Object.keys(currencies).map(key =>
                                 <option key={key} value={key}>{key} - {currencies[key]}</option>
                             )}

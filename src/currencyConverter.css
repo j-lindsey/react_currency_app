@@ -2,14 +2,13 @@
 .currency-main{
     display: flex;
     flex-direction: column;
-    margin: 50px 200px;
+    margin: 50px 250px;
 }
 
 .currency-input{
     display: flex;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: flex-end;
-    width: 80vw;
 }
 
 input{
