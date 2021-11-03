@@ -1,6 +1,7 @@
 import React from 'react';
 import { checkStatus, json } from './utils';
 import './currencyConverter.css';
+import RateChart from './RateChart';
 
 class CurrencyConverter extends React.Component {
     constructor(props) {
@@ -10,10 +11,13 @@ class CurrencyConverter extends React.Component {
             error: '',
             amount: 0,
             fromCurrency: '',
-            toCurrency: ''
+            toCurrency: '',
+            rates: {}
         };
         this.handleChange = this.handleChange.bind(this);
+        this.getRates = this.getRates.bind(this);
     }
+
     componentDidMount() {
         fetch('https://altexchangerateapi.herokuapp.com/currencies')
             .then(checkStatus)
@@ -26,6 +30,7 @@ class CurrencyConverter extends React.Component {
                     console.log(data);
                     this.setState({ currencies: data, error: '' });
                     this.setState({ fromCurrency: Object.keys(data)[0], toCurrency: Object.keys(data)[0] });
+                    this.getRates(this.state.fromCurrency);
                 }
             })
             .catch(error => {
@@ -33,29 +38,49 @@ class CurrencyConverter extends React.Component {
             })
     }
 
+    getRates(currency) {
+        fetch(`https://altexchangerateapi.herokuapp.com/latest?from=${currency}`)
+            .then(checkStatus)
+            .then(json)
+            .then(data => {
+                if (!data) {
+                    throw new Error()
+                }
+                else {
+                    console.log(data);
+                    this.setState({ rates: data.rates })
+                }
+            })
+            .catch(error => {
+                this.setState({ error: error.message });
+            });
+    }
+
     handleChange(event) {
         const { name } = event.target;
         let value;
-        if(name === "amount"){
+        if (name === "amount") {
             value = parseFloat(event.target.value);
-        }else{
+        } else {
             value = event.target.value;
         }
         this.setState({ [name]: value })
-        console.log(this.state);
+        if (name === "fromCurrency") {
+            this.getRates(value);
+        }
     }
 
     render() {
         if (!this.state.currencies) {
             return null;
         }
-        const { currencies, fromCurrency, toCurrency, amount } = this.state;
+        const { currencies, fromCurrency, toCurrency, amount, rates } = this.state;
 
         return (
             <div className="currency-main">
                 <div className="currency-input">
                     <div className="select">
-                    <label>Amount</label>
+                        <label>Amount</label>
                         <input type="number" placeholder="Amount" value={amount} name="amount" onChange={this.handleChange} />
                     </div>
                     <div className="select">
@@ -76,6 +101,7 @@ class CurrencyConverter extends React.Component {
                     </div>
                 </div>
                 <button className="convert">Convert</button>
+                <RateChart currency={fromCurrency} rates={rates} />
             </div>
         )
     }
