@@ -12,10 +12,13 @@ class CurrencyConverter extends React.Component {
             amount: 0,
             fromCurrency: '',
             toCurrency: '',
-            rates: {}
+            rates: {},
+            convert: false,
+            exchangedRate: 0
         };
         this.handleChange = this.handleChange.bind(this);
         this.getRates = this.getRates.bind(this);
+        this.handleClick = this.handleClick.bind(this);
     }
 
     componentDidMount() {
@@ -60,6 +63,7 @@ class CurrencyConverter extends React.Component {
         const { name } = event.target;
         let value;
         if (name === "amount") {
+            this.setState({convert: false});
             value = parseFloat(event.target.value);
         } else {
             value = event.target.value;
@@ -70,11 +74,19 @@ class CurrencyConverter extends React.Component {
         }
     }
 
+    handleClick() {
+        let { toCurrency, rates, amount } = this.state;
+        let rate = rates[toCurrency];
+        this.setState({ convert: true });
+        let value = rate * amount;
+        this.setState({ exchangedRate: value })
+    }
+
     render() {
         if (!this.state.currencies) {
             return null;
         }
-        const { currencies, fromCurrency, toCurrency, amount, rates } = this.state;
+        const { currencies, fromCurrency, toCurrency, amount, rates, convert, exchangedRate } = this.state;
 
         return (
             <div className="currency-main">
@@ -100,12 +112,22 @@ class CurrencyConverter extends React.Component {
                         </select>
                     </div>
                 </div>
-                <button className="convert">Convert</button>
-                <RateChart currency={fromCurrency} rates={rates} />
-            </div>
-        )
+                <button className="convert" onClick={this.handleClick}>Convert</button>
+                <div>
+                    {convert ? (
+                        <div className="rate-exchange">
+                            <h1 className="base-rate">{amount} {fromCurrency} = </h1>
+                            <h1 className="exchanged-rate">{exchangedRate} {toCurrency}</h1>
+                        </div>
+                            ) : 
+                            ( <div></div>
+                  )}
+                        </div>
+                            <RateChart currency={fromCurrency} rates={rates} />
+                        </div>
+                )
     }
 }
 
 
-export default CurrencyConverter;
+                export default CurrencyConverter;

@@ -12,6 +12,7 @@
 }
 
 input{
+    padding:0 15px;
     height: 50px;
     border-radius: 10px;
 }
@@ -38,4 +39,24 @@ option{
     padding: 20px;
     border-radius: 10px;
     border: 1px solid teal;
+}
+
+.rate-exchange{
+    margin: 50px;
+    padding: 20px;
+    background-color: white;
+    color: black;
+    display: flex;
+    flex-direction:column;
+    align-items: center;
+    border-radius: 10px;
+}
+
+.base-rate{
+    margin: 0 20px;
+    font-size: 25px;
+}
+
+.exchanged-rate{
+    margin: 0 20px;
 }
