@@ -1,4 +1,5 @@
 import CurrencyConverter from './CurrencyConverter';
+import CustomFooter from './CustomFooter';
 import './App.css';
 
 function App() {
@@ -8,8 +9,7 @@ function App() {
         <h1>Currency Exchange Rates</h1>
       </header>
       <CurrencyConverter />
-      <footer>
-      </footer>
+      <CustomFooter />
     </div>
   );
 }
