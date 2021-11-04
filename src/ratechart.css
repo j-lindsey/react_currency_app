@@ -1,20 +1,32 @@
-.rateChart{
+.rateChart {
     display: flex;
-    flex-direction:column;
-    align-items:center;
+    flex-direction: column;
+    align-items: center;
 }
 
-.rate{
+.rate {
     width: 450px;
     margin: 10px;
     border-radius: 10px;
     background-color: white;
     color: black;
     display: flex;
-    justify-content:space-between;
-    
+    justify-content: space-between;
 }
 
-.rate h4{
+.rate h4 {
     margin: 10px 40px;
+}
+
+@media only screen and (max-width: 992px) {
+    .rate {
+        width: 300px;
+        margin: 5px;
+        border-radius: 10px;
+        background-color: white;
+        color: black;
+    }
+    .rate h4 {
+        margin: 5px 20px;
+    }
 }

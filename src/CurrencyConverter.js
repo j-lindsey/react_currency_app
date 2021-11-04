@@ -63,7 +63,7 @@ class CurrencyConverter extends React.Component {
         const { name } = event.target;
         let value;
         if (name === "amount") {
-            this.setState({convert: false});
+            this.setState({ convert: false });
             value = parseFloat(event.target.value);
         } else {
             value = event.target.value;
@@ -79,7 +79,7 @@ class CurrencyConverter extends React.Component {
         let rate = rates[toCurrency];
         this.setState({ convert: true });
         let value = rate * amount;
-        this.setState({ exchangedRate: value })
+        this.setState({ exchangedRate: value.toFixed(4) })
     }
 
     render() {
@@ -90,44 +90,46 @@ class CurrencyConverter extends React.Component {
 
         return (
             <div className="currency-main">
-                <div className="currency-input">
-                    <div className="select">
-                        <label>Amount</label>
-                        <input type="number" placeholder="Amount" value={amount} name="amount" onChange={this.handleChange} />
+                <div className="currency-convert">
+                    <div className="currency-input">
+                        <div className="select">
+                            <label>Amount</label>
+                            <input type="number" placeholder="Amount" value={amount} name="amount" onChange={this.handleChange} />
+                        </div>
+                        <div className="select">
+                            <label>From</label>
+                            <select name="fromCurrency" value={fromCurrency} onChange={this.handleChange}>
+                                {Object.keys(currencies).map(key =>
+                                    <option key={key} value={key}>{key} - {currencies[key]}</option>
+                                )}
+                            </select>
+                        </div>
+                        <div className="select">
+                            <label>To</label>
+                            <select name="toCurrency" value={toCurrency} onChange={this.handleChange}>
+                                {Object.keys(currencies).map(key =>
+                                    <option key={key} value={key}>{key} - {currencies[key]}</option>
+                                )}
+                            </select>
+                        </div>
                     </div>
-                    <div className="select">
-                        <label>From</label>
-                        <select name="fromCurrency" value={fromCurrency} onChange={this.handleChange}>
-                            {Object.keys(currencies).map(key =>
-                                <option key={key} value={key}>{key} - {currencies[key]}</option>
-                            )}
-                        </select>
-                    </div>
-                    <div className="select">
-                        <label>To</label>
-                        <select name="toCurrency" value={toCurrency} onChange={this.handleChange}>
-                            {Object.keys(currencies).map(key =>
-                                <option key={key} value={key}>{key} - {currencies[key]}</option>
-                            )}
-                        </select>
-                    </div>
+                    <button className="convert" onClick={this.handleClick}>Convert</button>
                 </div>
-                <button className="convert" onClick={this.handleClick}>Convert</button>
                 <div>
                     {convert ? (
                         <div className="rate-exchange">
                             <h1 className="base-rate">{amount} {fromCurrency} = </h1>
                             <h1 className="exchanged-rate">{exchangedRate} {toCurrency}</h1>
                         </div>
-                            ) : 
-                            ( <div></div>
-                  )}
-                        </div>
-                            <RateChart currency={fromCurrency} rates={rates} />
-                        </div>
-                )
+                    ) :
+                        (<div></div>
+                        )}
+                </div>
+                <RateChart currency={fromCurrency} rates={rates} />
+            </div>
+        )
     }
 }
 
 
-                export default CurrencyConverter;
+export default CurrencyConverter;
