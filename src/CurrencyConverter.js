@@ -2,6 +2,8 @@ import React from 'react';
 import { checkStatus, json } from './utils';
 import './currencyConverter.css';
 import RateChart from './RateChart';
+import Chart from 'chart.js/auto';
+
 
 class CurrencyConverter extends React.Component {
     constructor(props) {
@@ -19,6 +21,8 @@ class CurrencyConverter extends React.Component {
         this.handleChange = this.handleChange.bind(this);
         this.getRates = this.getRates.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.getHistoricalRate = this.getHistoricalRate.bind(this);
+        this.chartRef = React.createRef();
     }
 
     componentDidMount() {
@@ -32,13 +36,62 @@ class CurrencyConverter extends React.Component {
                 else {
                     console.log(data);
                     this.setState({ currencies: data, error: '' });
-                    this.setState({ fromCurrency: Object.keys(data)[0], toCurrency: Object.keys(data)[0] });
+                    this.setState({ fromCurrency: Object.keys(data)[0], toCurrency: Object.keys(data)[1] });
                     this.getRates(this.state.fromCurrency);
+                    this.getHistoricalRate(this.state.fromCurrency, this.state.toCurrency)
                 }
             })
             .catch(error => {
                 this.setState({ error: error.message });
             })
+    }
+
+    getHistoricalRate = (base, quote) => {
+        const endDate = new Date().toISOString().split('T')[0];
+        const startDate = new Date((new Date()).getTime() - (30 * 24 * 60 * 60 * 1000)).toISOString().split('T')[0];
+
+        fetch(`https://altexchangerateapi.herokuapp.com/${startDate}..${endDate}?from=${base}&to=${quote}`)
+            .then(checkStatus)
+            .then(json)
+            .then(data => {
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                console.log(data);
+                const chartLabels = Object.keys(data.rates);
+                const chartData = Object.values(data.rates).map(rate => rate[quote]);
+                const chartLabel = `${base}/${quote}`;
+                this.buildChart(chartLabels, chartData, chartLabel);
+            })
+            .catch(error => {
+                console.error(error.message)
+            })
+    }
+
+    buildChart = (labels, data, label) => {
+        const chartRef = this.chartRef.current.getContext("2d");
+
+        if (typeof this.chart !== "undefined") {
+            this.chart.destroy();
+        }
+
+        this.chart = new Chart(this.chartRef.current.getContext("2d"), {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: label,
+                        data,
+                        fill: false,
+                        tension: 0
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+            }
+        })
     }
 
     getRates(currency) {
@@ -65,10 +118,18 @@ class CurrencyConverter extends React.Component {
         if (name === "amount") {
             this.setState({ convert: false });
             value = parseFloat(event.target.value);
+
         } else {
             value = event.target.value;
         }
-        this.setState({ [name]: value })
+        this.setState({ [name]: value }, () => {
+            if(this.state.convert === true){
+                let {rates, toCurrency, amount} = this.state;
+                let value = rates[toCurrency] * amount;
+                this.setState({ exchangedRate: value.toFixed(4) })
+            }
+            this.getHistoricalRate(this.state.fromCurrency, this.state.toCurrency)
+        })
         if (name === "fromCurrency") {
             this.getRates(value);
         }
@@ -124,6 +185,9 @@ class CurrencyConverter extends React.Component {
                     ) :
                         (<div></div>
                         )}
+                </div>
+                <div className="historical-chart">
+                    <canvas ref={this.chartRef} />
                 </div>
                 <RateChart currency={fromCurrency} rates={rates} />
             </div>
